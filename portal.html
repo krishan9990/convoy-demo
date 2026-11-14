@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#172d29" />
+    <meta name="description" content="Bring compatible local car buyers together and compare itemized dealer offers." />
+    <title>Convoy | Group car buying</title>
+    <link rel="stylesheet" href="/portal.css" />
+    <script src="/portal.js" defer></script>
+  </head>
+  <body>
+    <main id="loginScreen" class="login-layout">
+      <section class="login-story">
+        <a class="brand" href="/" aria-label="Convoy home"><span class="brand-mark">c.</span><span>convoy<span class="brand-period">.</span></span></a>
+        <div class="story-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> GURGAON · NOIDA</p>
+          <h1>Better deals<br />start <em>together.</em></h1>
+          <p>Join buyers with the same model, variant, fuel, and transmission. Compare written dealer offers before deciding.</p>
+        </div>
+        <div class="story-foot"><span>LOCAL GROUP BUYING</span><span>BUYER · DEALER · ADMIN WORKSPACES</span></div>
+      </section>
+
+      <section class="login-side">
+        <div class="login-card">
+          <p class="eyebrow">WELCOME TO CONVOY</p>
+          <h2>Sign in with your mobile</h2>
+          <p class="login-intro">Choose a workspace and enter your mobile number to get a one-time demo code.</p>
+          <div class="role-picker" role="group" aria-label="Choose account type">
+            <button type="button" class="role-choice active" data-role="CUSTOMER">Customer</button>
+            <button type="button" class="role-choice" data-role="DEALER">Dealer</button>
+            <button type="button" class="role-choice" data-role="ADMIN">Admin</button>
+          </div>
+          <form id="loginForm" class="form-stack">
+            <label>Mobile number
+              <span class="phone-input"><span>+91</span><input id="phoneInput" inputmode="numeric" autocomplete="tel-national" maxlength="10" pattern="[6-9][0-9]{9}" placeholder="98765 43210" required /></span>
+            </label>
+            <label id="nameField">Your name <span class="optional">(optional)</span><input id="nameInput" maxlength="40" autocomplete="name" placeholder="How should we address you?" /></label>
+            <label id="dealerField" class="hidden">Dealership name<input id="dealerInput" maxlength="60" autocomplete="organization" placeholder="e.g. City Motors" /></label>
+            <label id="dealerCityField" class="hidden">Dealership city<select id="dealerCityInput"><option value="Gurgaon">Gurgaon</option><option value="Noida">Noida</option></select></label>
+            <label id="dealerMakeField" class="hidden">Make represented<select id="dealerMakeInput"></select></label>
+            <button id="requestOtpButton" class="primary-button" type="submit">Get demo verification code <span>→</span></button>
+          </form>
+          <form id="otpForm" class="form-stack hidden">
+            <label>6-digit verification code<input id="otpInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter code" required /></label>
+            <button class="primary-button" type="submit">Verify &amp; sign in <span>→</span></button>
+            <button id="backToPhoneButton" class="text-button" type="button">Use a different number</button>
+          </form>
+          <p id="loginMessage" class="message" role="status" aria-live="polite"></p>
+          <div class="demo-disclaimer"><span aria-hidden="true">ⓘ</span><span>Demo sign-in values are configured by the server administrator. No SMS or money is sent. Customer, dealer, and admin profiles remain separate; dealer access still needs admin approval.</span></div>
+        </div>
+        <p id="databaseStatus" class="database-status"><span></span> Checking MongoDB connection…</p>
+      </section>
+    </main>
+
+    <main id="workspace" class="workspace hidden">
+      <aside class="sidebar">
+        <a class="brand" href="#top" aria-label="Convoy home"><span class="brand-mark">c.</span><span>convoy<span class="brand-period">.</span></span></a>
+        <p class="side-label" id="workspaceLabel">CUSTOMER WORKSPACE</p>
+        <a class="side-link active" href="#top"><span aria-hidden="true">⌂</span> Overview</a>
+        <a id="groupsNav" class="side-link" href="#buying-groups"><span aria-hidden="true">♧</span> Buying groups</a>
+        <a id="ordersNav" class="side-link" href="#my-groups"><span aria-hidden="true">▤</span> My groups</a>
+        <a id="dealerNav" class="side-link hidden" href="#dealer-groups"><span aria-hidden="true">↗</span> Dealer leads</a>
+        <a id="adminNav" class="side-link hidden" href="#adminTabOverview"><span aria-hidden="true">✓</span> Admin review</a>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-tip">
+          <span class="tip-icon" aria-hidden="true">✳</span>
+          <b id="sidebarTipTitle">Your choice. Your car.</b>
+          <p id="sidebarTipCopy">Compare final on-road totals, not headline discounts.</p>
+        </div>
+        <div class="sidebar-foot"><span></span> Local demo workspace</div>
+      </aside>
+
+      <section class="main-content">
+        <header class="topbar">
+          <div class="crumb">Workspace <span>/</span><b id="breadcrumbRole">Customer</b></div>
+          <div class="topbar-actions"><span class="demo-pill"><i></i> DEMO OTP &amp; PAYMENTS</span><span id="userAvatar" class="user-avatar">C</span><button id="logoutButton" class="logout-button" type="button">Sign out</button></div>
+        </header>
+
+        <section id="top" class="welcome-banner">
+          <div><p class="eyebrow"><span class="eyebrow-dot"></span> GROUP BUYING, MADE CLEAR</p><h1 id="welcomeTitle">Welcome to Convoy</h1><p id="welcomeCopy">Buy together. Compare itemized quotes. Choose what works for you.</p></div>
+          <div class="welcome-art" aria-hidden="true"><div class="welcome-sun"></div><div class="welcome-car"></div><span>BUY BETTER<br />TOGETHER</span></div>
+        </section>
+
+        <section id="customerView" class="role-view hidden">
+          <section class="stats-grid" aria-label="Customer account summary">
+            <article class="stat-card"><span class="stat-label">MY ACTIVE GROUPS</span><div><b id="customerActiveCount">0</b><span class="stat-icon mint">♙</span></div><small>Requests joined or created</small></article>
+            <article class="stat-card"><span class="stat-label">PUBLIC GROUPS</span><div><b id="customerGroupCount">0</b><span class="stat-icon peach">⌁</span></div><small>Compatible local buyers</small></article>
+            <article class="stat-card accent-stat"><span class="stat-label">DEMO ENTRY FEE</span><div><b>₹500</b><span class="stat-icon lime">✓</span></div><small>Per active membership</small></article>
+          </section>
+
+          <section class="customer-grid">
+            <div class="main-column">
+              <section id="buying-groups" class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">PUBLIC GROUPS</p><h2>Find compatible buyers</h2></div><div class="panel-tools"><select id="groupCityFilter" aria-label="Filter by delivery city"><option value="">All cities</option><option value="Gurgaon">Gurgaon</option><option value="Noida">Noida</option></select><button id="refreshCustomerButton" class="quiet-button" type="button">↻ Refresh</button></div></div>
+                <p class="panel-description">Groups match the exact model, model year, variant, fuel, transmission, purchase window, and delivery city.</p>
+                <div id="customerGroups" class="group-list"></div>
+                <div id="customerGroupsEmpty" class="empty-state hidden">No public groups match this filter. Start a group below.</div>
+              </section>
+
+              <section id="my-groups" class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">YOUR BUYING JOURNEY</p><h2>My groups and offers</h2></div><span id="orderCount" class="count-pill">0 groups</span></div>
+                <div id="customerOrders" class="order-list"></div>
+                <div id="customerOrdersEmpty" class="empty-state">Groups you create or join will appear here.</div>
+              </section>
+            </div>
+
+            <aside class="side-column">
+              <section id="join-pool" class="panel join-panel">
+                <div class="join-head"><span class="join-step">01 / CREATE A BUYING GROUP</span><span class="join-icon">＋</span></div>
+                <h2>Start with your exact car</h2>
+                <p>A group is for one compatible vehicle specification. Different models form separate groups.</p>
+                <form id="groupForm" class="form-stack">
+                  <label>Your first name<input id="customerFirstName" maxlength="40" autocomplete="given-name" placeholder="e.g. Aanya" required /></label>
+                  <label>Car brand / make<select id="orderMake" required></select></label>
+                  <label>Car model<select id="orderModel" required></select></label>
+                  <label>Transmission<select id="orderTransmission" required><option value="Manual">Manual</option><option value="Automatic">Automatic</option></select></label>
+                  <label>Delivery city<select id="orderCity" required><option value="Gurgaon">Gurgaon</option><option value="Noida">Noida</option></select></label>
+                  <label>Fuel type<select id="orderFuel" required><option value="Petrol">Petrol</option><option value="Diesel">Diesel</option><option value="EV">Electric (EV)</option><option value="CNG">CNG</option></select></label>
+                  <label>Preferred variant / trim<input id="orderVariant" maxlength="80" placeholder="e.g. SX (O), ZXi, or enter your preference" required /></label>
+                  <label>Model year<select id="orderYear"><option>2026</option><option>2027</option><option>2025</option></select></label>
+                  <p class="catalog-note">The brand/model directory is not live inventory. Confirm the selected fuel, transmission, trim, and availability with a dealer. Groups match exactly what buyers select.</p>
+                  <label>Buying timeline<select id="purchaseWindow"><option value="WITHIN_30_DAYS">Within 30 days</option><option value="ONE_TO_THREE_MONTHS">1–3 months</option><option value="THREE_TO_SIX_MONTHS">3–6 months</option></select></label>
+                  <div class="form-row">
+                    <label>Buyer target<input id="targetCount" type="number" min="3" max="20" step="1" value="5" required /></label>
+                    <label>Group closes<input id="purchaseEndDate" type="date" required /></label>
+                  </div>
+                  <div class="fee-summary"><span>Entry fee per buyer</span><b>₹500</b></div>
+                  <p class="fee-explainer">Demo only. A waitlist spot is free; the entry fee is simulated when you join the group.</p>
+                  <button class="submit-button" type="submit">Create group · simulate ₹500 <span>→</span></button>
+                  <p id="orderMessage" class="form-message" role="status" aria-live="polite"></p>
+                </form>
+              </section>
+              <section class="panel fee-panel"><p class="eyebrow">FEES, EXPLAINED</p><h2>Clear before you join</h2><div class="fee-line"><span>Active group membership</span><b>₹500</b></div><p>Simulated entry fee. Cancelling before a purchase records a simulated refund.</p><div class="fee-line"><span>Your confirmed purchase</span><b>₹2,000</b></div><p>Recorded only when you individually confirm a dealer offer.</p><div class="simulation-note"><span>ⓘ</span> No real payment is collected. Do not send money for this demo.</div></section>
+            </aside>
+          </section>
+          <section class="panel support-panel">
+            <div class="panel-heading"><div><p class="eyebrow">CUSTOMER SUPPORT</p><h2>Report an issue</h2></div></div>
+            <form id="customerIssueForm" class="form-stack support-form">
+              <div class="form-row">
+                <label>Issue type<select id="customerIssueCategory"><option value="QUOTE">Dealer quote</option><option value="PAYMENT">Payment record</option><option value="VEHICLE">Vehicle / delivery</option><option value="DEALER">Dealer conduct</option><option value="ACCOUNT">Account</option><option value="OTHER">Other</option></select></label>
+                <label>Related group <span class="optional">(optional)</span><select id="customerIssueGroup"><option value="">No specific group</option></select></label>
+              </div>
+              <label>Describe the issue<textarea id="customerIssueDescription" rows="3" minlength="10" maxlength="1000" required placeholder="Include the relevant details; do not include sensitive payment information."></textarea></label>
+              <button class="submit-button" type="submit">Send to admin review <span>→</span></button>
+              <p id="customerIssueMessage" class="form-message" role="status" aria-live="polite"></p>
+            </form>
+            <div id="customerIssues" class="issue-list"></div>
+            <div id="customerIssuesEmpty" class="empty-state">Your reported issues will appear here.</div>
+          </section>
+        </section>
+
+        <section id="dealerPending" class="panel verification-pending hidden">
+          <span class="pending-icon">◷</span><div><p class="eyebrow">DEALER ACCESS</p><h2 id="pendingDealerTitle">Approval required</h2><p id="pendingDealerCopy">A local admin must review and approve this demo dealership before leads and quotes are available.</p></div>
+          <button id="refreshDealerApproval" class="quiet-button" type="button">Check approval</button>
+        </section>
+
+        <section id="dealerView" class="role-view hidden">
+          <section class="stats-grid" aria-label="Dealer account summary">
+            <article class="stat-card"><span class="stat-label">ELIGIBLE GROUP LEADS</span><div><b id="dealerGroupCount">0</b><span class="stat-icon mint">♙</span></div><small>Target reached · your make/city</small></article>
+            <article class="stat-card"><span class="stat-label">BUYERS IN LEADS</span><div><b id="dealerBuyerCount">0</b><span class="stat-icon peach">⌁</span></div><small>Aggregated counts only</small></article>
+            <article class="stat-card accent-stat"><span class="stat-label">MY QUOTATIONS</span><div><b id="dealerQuoteCount">0</b><span class="stat-icon lime">↗</span></div><small>Latest revision per group</small></article>
+          </section>
+          <section class="dealer-grid">
+            <section id="dealer-groups" class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">APPROVED DEALER LEADS</p><h2>Target-reached groups</h2></div><button id="refreshDealerButton" class="quiet-button" type="button">↻ Refresh</button></div>
+              <p class="panel-description">Only groups matching your approved make and city are listed. Buyer phone numbers and private details are not shared.</p>
+              <div class="lead-filters">
+                <input id="dealerLeadSearch" type="search" aria-label="Search dealer leads" placeholder="Search model, trim, or city" />
+                <select id="dealerLeadQuoteFilter" aria-label="Filter leads by quotation">
+                  <option value="ALL">All eligible groups</option>
+                  <option value="NO_QUOTES">Waiting for first quote</option>
+                  <option value="HAS_QUOTES">Groups with quotes</option>
+                </select>
+              </div>
+              <div id="dealerGroups" class="group-list"></div>
+              <div id="dealerGroupsEmpty" class="empty-state hidden">No eligible target-reached group leads in your city yet.</div>
+            </section>
+            <aside class="panel dealer-quote-panel">
+              <div class="dealer-heading"><span class="dealer-icon">↗</span><div><p class="eyebrow">ITEMIZED QUOTATION</p><h2 id="dealerPortalName">Share an offer</h2></div></div>
+              <p class="panel-description">Enter written prices. Confirmed benefits reduce the total; conditional offers are displayed separately.</p>
+              <form id="dealerQuoteForm" class="form-stack">
+                <label>Buying group<select id="dealerGroupSelect" required></select></label>
+                <div class="quote-vehicle-card">
+                  <span class="quote-vehicle-label">EXACT VEHICLE REQUESTED BY BUYERS</span>
+                  <b id="dealerVehicleVariant">Select a buying group to see its requested variant</b>
+                </div>
+                <label>Quoted exterior colour<input id="vehicleColour" maxlength="50" placeholder="e.g. Atlas White" required /></label>
+                <div class="form-row">
+                  <label>Dealership outlet / full location<input id="dealerLocation" maxlength="200" placeholder="Outlet name, address, area, city" required /></label>
+                  <label>Dealer authorisation reference<input id="authorizationReference" maxlength="100" placeholder="Dealer code or authorisation reference" required /></label>
+                </div>
+                <div class="form-row">
+                  <label>Salesperson name<input id="salespersonName" maxlength="60" required /></label>
+                  <label>Sales manager name<input id="managerName" maxlength="60" required /></label>
+                </div>
+                <div class="form-row">
+                  <label>Ex-showroom<input id="dealerExShowroom" type="number" min="1000" max="100000000" step="1000" required /></label>
+                  <label>Dealer discount<input id="dealerDiscount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                </div>
+                <label>GST included in ex-showroom · information only<input id="gstIncludedAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                <div class="form-row">
+                  <label>Confirmed manufacturer benefit<input id="manufacturerBenefit" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>Group benefit total<input id="groupBenefitTotal" type="number" min="0" max="100000000" step="1000" value="0" required /></label>
+                </div>
+                <label>Group benefit description<input id="groupBenefitDescription" maxlength="200" placeholder="Required if a group benefit is offered" /></label>
+                <div class="form-row">
+                  <label>Insurance amount<input id="insuranceAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>Insurance type<select id="insuranceType"><option value="DEALER">Dealer provided</option><option value="BUYER_ARRANGED">Buyer arranged</option></select></label>
+                </div>
+                <label id="insuranceProviderField">Insurance provider<input id="insuranceProvider" maxlength="100" placeholder="e.g. insurer name" /></label>
+                <div class="form-row">
+                  <label>RTO / registration fees<input id="registrationAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>Road / state tax<input id="roadTaxAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                </div>
+                <div class="form-row">
+                  <label>TCS<input id="tcsAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>FASTag<input id="fastagAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                </div>
+                <div class="form-row">
+                  <label>Hypothecation fee<input id="hypothecationAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>Other taxes / statutory charges<input id="otherTaxesAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                </div>
+                <label id="otherTaxesExplanationField" class="hidden">Explain other taxes / charges<input id="otherTaxesExplanation" maxlength="500" /></label>
+                <div class="form-row">
+                  <label>Accessories<input id="accessoriesAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>Handling<input id="handlingAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                </div>
+                <div class="form-row">
+                  <label>Logistics<input id="logisticsAmount" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  <label>Other charges<input id="otherCharges" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                </div>
+                <label id="otherChargesExplanationField" class="hidden">Explain other charges<input id="otherChargesExplanation" maxlength="500" /></label>
+                <div class="conditional-box">
+                  <span class="conditional-title">Conditional benefits · not deducted from total</span>
+                  <div class="form-row">
+                    <label>Exchange bonus<input id="exchangeBonus" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                    <label>Corporate benefit<input id="corporateBenefit" type="number" min="0" max="10000000" step="1000" value="0" required /></label>
+                  </div>
+                  <label>Exchange eligibility<input id="exchangeCondition" maxlength="500" placeholder="Eligibility required when bonus > ₹0" /></label>
+                  <label>Corporate eligibility<input id="corporateCondition" maxlength="500" placeholder="Eligibility required when benefit > ₹0" /></label>
+                </div>
+                <div class="form-row">
+                  <label>Stock status<select id="stockStatus"><option value="UNCONFIRMED">Not confirmed</option><option value="EXPECTED">Expected</option><option value="CONFIRMED">Confirmed</option></select></label>
+                  <label>Quote valid until<input id="quoteValidUntil" type="date" required /></label>
+                </div>
+                <label>Estimated delivery<input id="deliveryEstimate" maxlength="120" placeholder="e.g. 3–4 weeks after booking" required /></label>
+                <label>Terms / exclusions<textarea id="quoteTerms" rows="2" maxlength="2000" placeholder="List conditions and exclusions"></textarea></label>
+                <div class="total-preview"><span>Estimated on-road · per car</span><b id="dealerTotalPreview">₹—</b></div>
+                <button class="outline-submit" type="submit">Submit / revise written quote <span>↗</span></button>
+                <p id="dealerQuoteMessage" class="form-message" role="status" aria-live="polite"></p>
+              </form>
+              <p class="unverified-note">Demo approval does not verify authorisation. Quote figures are not independently validated.</p>
+            </aside>
+          </section>
+          <section class="panel dealer-offers-panel">
+            <div class="panel-heading"><div><p class="eyebrow">QUOTE HISTORY</p><h2>Your latest dealer offers</h2></div></div>
+            <div id="dealerQuotes" class="dealer-offer-list"></div>
+            <div id="dealerQuotesEmpty" class="empty-state">Your submitted quote revisions will appear here.</div>
+          </section>
+          <section id="dealerInventoryPanel" class="panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">DEALER INVENTORY</p><h2>Manage available vehicles</h2></div></div>
+            <p class="panel-description">This is dealer-entered demo stock, not a live inventory feed or reservation.</p>
+            <form id="dealerInventoryForm" class="form-stack inventory-form">
+              <input id="inventoryId" type="hidden" />
+              <div class="form-row">
+                <label>Model<select id="inventoryModel" required></select></label>
+                <label>Model year<input id="inventoryYear" type="number" min="2020" max="2030" value="2026" required /></label>
+              </div>
+              <div class="form-row">
+                <label>Variant / trim<input id="inventoryVariant" maxlength="80" required /></label>
+                <label>Colour<input id="inventoryColour" maxlength="50" required /></label>
+              </div>
+              <div class="form-row">
+                <label>Fuel<select id="inventoryFuel"><option>Petrol</option><option>Diesel</option><option>EV</option><option>CNG</option></select></label>
+                <label>Transmission<select id="inventoryTransmission"><option>Manual</option><option>Automatic</option></select></label>
+              </div>
+              <div class="form-row">
+                <label>City<select id="inventoryCity"><option>Gurgaon</option><option>Noida</option></select></label>
+                <label>Quantity<input id="inventoryQuantity" type="number" min="0" max="500" value="1" required /></label>
+              </div>
+              <div class="form-row">
+                <label>Stock status<select id="inventoryStatus"><option value="IN_STOCK">In stock</option><option value="EXPECTED">Expected</option><option value="OUT_OF_STOCK">Out of stock</option></select></label>
+                <label>Expected delivery<input id="inventoryDelivery" maxlength="120" placeholder="Optional" /></label>
+              </div>
+              <button id="inventorySubmitButton" class="submit-button" type="submit">Add inventory item <span>→</span></button>
+              <p id="dealerInventoryMessage" class="form-message" role="status" aria-live="polite"></p>
+            </form>
+            <div id="dealerInventory" class="inventory-list"></div>
+            <div id="dealerInventoryEmpty" class="empty-state">No inventory items listed.</div>
+          </section>
+          <section id="dealerPaymentsPanel" class="panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">PAYMENT STATUS</p><h2>Eligible group payment aggregates</h2></div></div>
+            <p class="panel-description">Only group-level simulated counts are shown. Customer names, contact details, amounts per person, and payment records remain admin-only.</p>
+            <div id="dealerPayments" class="inventory-list"></div>
+            <div id="dealerPaymentsEmpty" class="empty-state">No eligible group payment summaries.</div>
+          </section>
+          <section id="dealerRatingsPanel" class="panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">BUYER FEEDBACK</p><h2>Dealer ratings</h2></div><span id="dealerRatingSummary" class="count-pill">No ratings</span></div>
+            <div id="dealerRatings" class="issue-list"></div>
+            <div id="dealerRatingsEmpty" class="empty-state">Ratings from confirmed buyers will appear here.</div>
+          </section>
+          <section id="dealerIssuesPanel" class="panel hidden support-panel">
+            <div class="panel-heading"><div><p class="eyebrow">DEALER SUPPORT</p><h2>Report an issue</h2></div></div>
+            <form id="dealerIssueForm" class="form-stack support-form">
+              <div class="form-row">
+                <label>Issue type<select id="dealerIssueCategory"><option value="QUOTE">Dealer quote</option><option value="PAYMENT">Payment record</option><option value="VEHICLE">Vehicle / delivery</option><option value="DEALER">Dealer conduct</option><option value="ACCOUNT">Account</option><option value="OTHER">Other</option></select></label>
+                <label>Related group <span class="optional">(optional)</span><select id="dealerIssueGroup"><option value="">No specific group</option></select></label>
+              </div>
+              <label>Describe the issue<textarea id="dealerIssueDescription" rows="3" minlength="10" maxlength="1000" required></textarea></label>
+              <button class="submit-button" type="submit">Send to admin review <span>→</span></button>
+              <p id="dealerIssueMessage" class="form-message" role="status" aria-live="polite"></p>
+            </form>
+            <div id="dealerIssues" class="issue-list"></div>
+            <div id="dealerIssuesEmpty" class="empty-state">Your reported issues will appear here.</div>
+          </section>
+        </section>
+
+        <section id="adminView" class="role-view hidden">
+          <section class="stats-grid" aria-label="Admin summary">
+            <article class="stat-card"><span class="stat-label">PENDING DEALERS</span><div><b id="pendingDealerCount">0</b><span class="stat-icon peach">◷</span></div><small>Manual demo approval required</small></article>
+            <article class="stat-card"><span class="stat-label">ALL BUYING DEALS</span><div><b id="adminGroupCount">0</b><span class="stat-icon mint">♧</span></div><small>Groups and dealer quotations</small></article>
+            <article class="stat-card accent-stat"><span class="stat-label">PAYMENT RECORDS</span><div><b id="adminPaymentCount">0</b><span class="stat-icon lime">₹</span></div><small>Simulated demo entries only</small></article>
+          </section>
+          <nav class="admin-tabs" aria-label="Admin sections">
+            <button type="button" class="admin-tab-button active" data-admin-tab="overview">Overview</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="dealers">Dealers</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="deals">All deals &amp; quotes</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="payments">Payments</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="inventory">Inventory</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="ratings">Ratings</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="issues">Issues</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="audit">Activity log</button>
+            <button type="button" class="admin-tab-button" data-admin-tab="access">Access</button>
+          </nav>
+          <section id="adminTabOverview" class="admin-tab">
+            <div class="admin-grid">
+              <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">DEALER REVIEW</p><h2>Pending dealer approvals</h2></div><button id="refreshAdminButton" class="quiet-button" type="button">↻ Refresh</button></div>
+                <p class="panel-description">Approval is a local demo flag only; it does not verify legal authorisation.</p>
+                <div id="adminOverviewDealers" class="admin-dealer-list"></div>
+                <div id="adminOverviewDealersEmpty" class="empty-state hidden">No dealership accounts to review.</div>
+              </section>
+              <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">GROUP MODERATION</p><h2>Latest buying groups</h2></div></div>
+                <div id="adminGroups" class="admin-group-list"></div>
+                <div id="adminGroupsEmpty" class="empty-state hidden">No groups have been created.</div>
+              </section>
+            </div>
+          </section>
+          <section id="adminTabDealers" class="admin-tab hidden">
+            <div id="admin-dealers" class="admin-grid">
+              <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">DEALER DIRECTORY</p><h2>All dealer accounts</h2></div></div>
+                <p class="panel-description">Review dealer details and control demo lead access.</p>
+                <div id="adminDealers" class="admin-dealer-list"></div>
+                <div id="adminDealersEmpty" class="empty-state hidden">No dealership accounts to review.</div>
+              </section>
+              <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">ADD A DEALER</p><h2>Create a pending account</h2></div></div>
+                <p class="panel-description">The dealer can sign in with their phone and demo OTP after creation. Review their authorisation before granting lead access.</p>
+                <form id="adminDealerForm" class="form-stack admin-dealer-form">
+                  <label>Dealer contact mobile<input id="adminDealerPhone" inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}" required /></label>
+                  <label>Dealership name<input id="adminDealerName" maxlength="60" required /></label>
+                  <label>Dealership city<select id="adminDealerCity"><option>Gurgaon</option><option>Noida</option></select></label>
+                  <label>Make represented<select id="adminDealerMake" required></select></label>
+                  <button class="submit-button" type="submit">Add dealer · pending review <span>→</span></button>
+                </form>
+              </section>
+            </div>
+          </section>
+          <section id="adminTabDeals" class="admin-tab hidden">
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">PLATFORM DEALS</p><h2>All buying groups and quotations</h2></div><button id="exportDealsButton" class="quiet-button" type="button">↓ Export CSV</button></div>
+              <p class="panel-description">Review every group, quote revision, dealer location, authorisation reference, and calculated on-road total.</p>
+              <div id="adminDeals" class="admin-deals-list"></div>
+              <div id="adminDealsEmpty" class="empty-state hidden">No groups or quotations yet.</div>
+            </section>
+          </section>
+          <section id="adminTabPayments" class="admin-tab hidden">
+            <section class="stats-grid payment-stats">
+              <article class="stat-card"><span class="stat-label">ENTRY FEE EVENTS</span><div><b id="adminEntryFeeCount">0</b><span class="stat-icon mint">₹</span></div><small>₹500 simulated per buyer</small></article>
+              <article class="stat-card"><span class="stat-label">REFUND EVENTS</span><div><b id="adminRefundCount">0</b><span class="stat-icon peach">↩</span></div><small>Recorded on group leave</small></article>
+              <article class="stat-card"><span class="stat-label">PURCHASE FEE EVENTS</span><div><b id="adminPurchaseFeeCount">0</b><span class="stat-icon lime">✓</span></div><small>₹2,000 simulated per buyer</small></article>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">SIMULATED LEDGER</p><h2>Payment and refund records</h2></div><div class="panel-tools"><span class="demo-pill"><i></i> NO REAL MONEY</span><button id="exportPaymentsButton" class="quiet-button" type="button">↓ Export CSV</button></div></div>
+              <p id="adminPaymentDisclaimer" class="panel-description">No real payments are collected. This ledger contains local demo records only.</p>
+              <div id="adminPayments" class="admin-ledger-list"></div>
+              <div id="adminPaymentsEmpty" class="empty-state hidden">No payment events recorded.</div>
+            </section>
+          </section>
+          <section id="adminTabInventory" class="admin-tab hidden">
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">DEALER STOCK ENTRIES</p><h2>All demo inventory</h2></div><button id="exportInventoryButton" class="quiet-button" type="button">↓ Export CSV</button></div>
+              <p class="panel-description">Dealer-entered stock claims are not independently verified or reserved.</p>
+              <div id="adminInventory" class="inventory-list"></div>
+              <div id="adminInventoryEmpty" class="empty-state hidden">No dealer inventory has been listed.</div>
+            </section>
+          </section>
+          <section id="adminTabRatings" class="admin-tab hidden">
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">PURCHASE FEEDBACK</p><h2>Customer ratings</h2></div><div class="panel-tools"><span id="adminRatingSummary" class="count-pill">No ratings</span><button id="exportRatingsButton" class="quiet-button" type="button">↓ Export CSV</button></div></div>
+              <div id="adminRatings" class="issue-list"></div>
+              <div id="adminRatingsEmpty" class="empty-state hidden">No eligible purchase ratings yet.</div>
+            </section>
+          </section>
+          <section id="adminTabIssues" class="admin-tab hidden">
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">CUSTOMER &amp; DEALER SUPPORT</p><h2>Issue tickets</h2></div><button id="exportIssuesButton" class="quiet-button" type="button">↓ Export CSV</button></div>
+              <div id="adminIssues" class="issue-list"></div>
+              <div id="adminIssuesEmpty" class="empty-state hidden">No issue tickets reported.</div>
+            </section>
+          </section>
+          <section id="adminTabAudit" class="admin-tab hidden">
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">ADMIN AUDIT TRAIL</p><h2>Recent platform activity</h2></div><button id="exportAuditButton" class="quiet-button" type="button">↓ Export CSV</button></div>
+              <p class="panel-description">Actor identifiers are one-way fingerprints. This history records important admin, dealer, group, payment, rating, and issue actions.</p>
+              <div id="adminAudit" class="admin-audit-list"></div>
+              <div id="adminAuditEmpty" class="empty-state hidden">No platform activity recorded yet.</div>
+            </section>
+          </section>
+          <section id="adminTabAccess" class="admin-tab hidden">
+            <section class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">ACCOUNT ACCESS</p><h2>Roles, dealer status, and active sessions</h2></div></div>
+              <p class="panel-description">Revoke an account's current sessions to immediately require a new OTP sign-in. Phone numbers are masked.</p>
+              <div id="adminAccess" class="admin-access-list"></div>
+              <div id="adminAccessEmpty" class="empty-state hidden">No accounts available.</div>
+            </section>
+          </section>
+          <p id="adminMessage" class="form-message admin-message" role="status" aria-live="polite"></p>
+        </section>
+
+        <footer class="page-footer"><span>convoy<span class="brand-period">.</span> · MongoDB local MVP</span><span>OTP, dealer approval, and payments are demo-only.</span></footer>
+      </section>
+    </main>
+  </body>
+</html>

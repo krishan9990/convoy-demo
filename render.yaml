@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: convoy-private-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py --host 0.0.0.0
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        value: convoy
+      - key: CONVOY_ADMIN_PHONE
+        sync: false
+      - key: CONVOY_DEMO_OTP
+        sync: false
+      - key: CONVOY_ACCESS_USERNAME
+        value: preview
+      - key: CONVOY_ACCESS_PASSWORD
+        sync: false
+      - key: CONVOY_REQUIRE_ACCESS_PASSWORD
+        value: "true"
+      - key: CONVOY_COOKIE_SECURE
+        value: "true"

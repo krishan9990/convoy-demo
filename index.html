@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#172d29" />
+    <meta name="description" content="Bring local car buyers together and compare dealer quotes for a group purchase." />
+    <title>Convoy | Buy together, drive a better deal</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#overview" aria-label="Convoy home">
+          <span class="brand-mark" aria-hidden="true">c.</span>
+          <span>convoy<span class="brand-period">.</span></span>
+        </a>
+        <p class="side-label">YOUR BUYING DESK</p>
+        <a class="side-link active" href="#overview"><span aria-hidden="true">⌂</span> Overview</a>
+        <a class="side-link" href="#batches"><span aria-hidden="true">▤</span> Group orders</a>
+        <a class="side-link" href="#dealer-quotes"><span aria-hidden="true">↗</span> Dealer quotes</a>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-tip">
+          <span class="tip-icon" aria-hidden="true">✳</span>
+          <b>One group. More leverage.</b>
+          <p>Buyers for the same car and city can compare offers together.</p>
+        </div>
+        <div class="sidebar-foot"><span></span> Your local buying workspace</div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="crumb">Workspace <span>/</span> Group buying</div>
+          <div class="topbar-actions">
+            <span class="local-badge"><i></i> SAVED ON THIS DEVICE</span>
+            <span class="user-avatar" aria-label="You">Y</span>
+          </div>
+        </header>
+
+        <section class="hero" id="overview">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-dot"></span> A SMARTER WAY TO BUY A CAR</p>
+            <h1>Good cars.<br /><em>Better together.</em></h1>
+            <p>Find people buying the same car near you. Bring the numbers to local dealers and compare every offer before you decide.</p>
+            <a class="hero-cta" href="#join-pool">Join a buying group <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <div class="hero-sun"></div>
+            <div class="road road-back"></div>
+            <div class="road road-front"></div>
+            <div class="hero-car"><span class="car-window"></span><span class="car-wheel wheel-left"></span><span class="car-wheel wheel-right"></span></div>
+            <div class="hero-sticker"><span>THE GROUP BUY</span><b>starts here.</b><i>01 / 04</i></div>
+            <span class="hero-star star-one">✳</span><span class="hero-star star-two">✦</span>
+          </div>
+          <div class="hero-index">BUY TOGETHER <span>—</span> SAVE SMARTER</div>
+        </section>
+
+        <section class="stats-grid" aria-label="Group buying summary">
+          <article class="stat-card">
+            <span class="stat-label">BUYERS IN THE POOL</span>
+            <div><b id="buyerCount">5</b><span class="stat-icon mint" aria-hidden="true">♙</span></div>
+            <small>Across Gurgaon &amp; Noida</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">CARS BEING GROUPED</span>
+            <div><b id="modelCount">4</b><span class="stat-icon peach" aria-hidden="true">⌁</span></div>
+            <small>Match by model, variant &amp; city</small>
+          </article>
+          <article class="stat-card accent-stat">
+            <span class="stat-label">YOUR BEST QUOTE</span>
+            <div><b id="bestQuote">—</b><span class="stat-icon lime" aria-hidden="true">↗</span></div>
+            <small id="bestQuoteNote">Add a dealer offer to compare</small>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <div class="primary-column">
+            <section id="batches" class="panel batch-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">THE BUYING GROUPS</p>
+                  <h2>Who's buying what?</h2>
+                </div>
+                <label class="filter-wrap">
+                  <span class="sr-only">Filter buying groups by city</span>
+                  <select id="cityFilter">
+                    <option value="All cities">All cities</option>
+                    <option value="Gurgaon">Gurgaon</option>
+                    <option value="Noida">Noida</option>
+                  </select>
+                </label>
+              </div>
+              <p class="panel-description">Each group matches buyers by car, variant, and delivery city.</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>CAR &amp; VARIANT</th><th>DELIVERY CITY</th><th>BUYERS</th><th>GROUP</th><th></th></tr></thead>
+                  <tbody id="batchRows"></tbody>
+                </table>
+                <div id="emptyBatches" class="empty-state hidden">No groups in this city yet. Start one below.</div>
+              </div>
+              <p class="table-footnote"><span>ⓘ</span> Buyer names are sample entries. Don't add personal or payment details.</p>
+            </section>
+
+            <section id="dealer-quotes" class="panel quotes-panel">
+              <div class="panel-heading quote-heading">
+                <div>
+                  <p class="eyebrow">OFFERS FOR <span id="quoteGroupLabel">CRETA · GURGAON</span></p>
+                  <h2>Compare dealer quotes</h2>
+                </div>
+                <span class="quote-count" id="quoteCount">2 offers</span>
+              </div>
+              <div class="quote-note"><span aria-hidden="true">✳</span> Compare the final on-road total, not just the discount. Always confirm the written, itemized quote with the dealer.</div>
+              <div id="quoteCards" class="quote-list"></div>
+              <div id="emptyQuotes" class="empty-quotes hidden">
+                <span aria-hidden="true">↗</span><b>No offers for this group yet</b>
+                <p>Add the written quotes you receive from dealers to compare totals.</p>
+              </div>
+            </section>
+          </div>
+
+          <aside class="secondary-column">
+            <section id="join-pool" class="panel join-panel">
+              <div class="join-head">
+                <span class="join-step">01 / JOIN THE POOL</span>
+                <span class="join-icon" aria-hidden="true">＋</span>
+              </div>
+              <h2>Buying a car soon?</h2>
+              <p>Tell local buyers what you need. Matching orders get grouped so you can approach dealers together.</p>
+              <form id="buyerForm" class="form-stack">
+                <label>Your first name <span class="optional">(optional)</span><input id="buyerName" maxlength="40" placeholder="e.g. Aanya" /></label>
+                <label>Car model
+                  <select id="buyerModel" required>
+                    <option value="Creta">Hyundai Creta</option>
+                    <option value="Venue">Hyundai Venue</option>
+                    <option value="Swift">Maruti Suzuki Swift</option>
+                    <option value="Baleno">Maruti Suzuki Baleno</option>
+                  </select>
+                </label>
+                <label>Preferred variant <span class="optional">(optional)</span><input id="buyerVariant" maxlength="60" placeholder="e.g. S (O) Petrol" /></label>
+                <label>Delivery city
+                  <select id="buyerCity" required><option value="Gurgaon">Gurgaon</option><option value="Noida">Noida</option></select>
+                </label>
+                <button class="submit-button" type="submit">Join this buying group <span aria-hidden="true">→</span></button>
+                <p id="buyerMessage" class="form-message" role="status" aria-live="polite"></p>
+              </form>
+              <div class="privacy-note"><span aria-hidden="true">◈</span> Your entry stays in this browser. No phone number or payment info needed.</div>
+            </section>
+
+            <section class="panel dealer-panel">
+              <div class="dealer-heading">
+                <span class="dealer-icon" aria-hidden="true">↗</span>
+                <div><p class="eyebrow">GOT A WRITTEN OFFER?</p><h2>Add a dealer quote</h2></div>
+              </div>
+              <p class="dealer-description">Enter the numbers from a dealer's quote to compare it with this group.</p>
+              <form id="quoteForm" class="form-stack quote-form">
+                <label>Dealer name<input id="dealerName" maxlength="60" placeholder="e.g. City Motors" required /></label>
+                <label>Car &amp; variant<select id="quoteBatch" required></select></label>
+                <div class="form-row">
+                  <label>Ex-showroom price <span>₹</span><input id="exShowroom" type="number" min="1000" max="100000000" step="1000" placeholder="1,350,000" required /></label>
+                  <label>Dealer discount <span>₹</span><input id="discount" type="number" min="0" max="10000000" step="1000" placeholder="45,000" required /></label>
+                </div>
+                <label>Other on-road costs <span class="optional">(RTO, insurance, etc.)</span><span class="currency-field"><span>₹</span><input id="otherCosts" type="number" min="0" max="10000000" step="1000" placeholder="180,000" required /></span></label>
+                <label class="check-row"><input id="sampleQuote" type="checkbox" /><span>Mark this as a demo / sample offer</span></label>
+                <button class="outline-submit" type="submit">Add quote to comparison <span aria-hidden="true">↗</span></button>
+                <p id="quoteMessage" class="form-message" role="status" aria-live="polite"></p>
+              </form>
+            </section>
+          </aside>
+        </section>
+
+        <footer class="page-footer">
+          <span>convoy<span class="brand-period">.</span> · A local group-buying demo</span>
+          <span>Quotes are user-entered. Discounts and availability are not guaranteed.</span>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>
