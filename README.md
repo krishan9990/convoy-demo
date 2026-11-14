@@ -50,6 +50,8 @@ The `render.yaml` in this project directory deploys Convoy directly; it does not
 3. Configure Atlas network access for the Render service. Render Free does not provide a fixed outbound IP; if an allow-list rule must be opened for this demo, use a dedicated least-privilege demo DB user, unique credentials, and no real customer data. Prefer a host with restricted/static egress for anything sensitive.
 4. In Render's service environment, also set `CONVOY_ADMIN_PHONE` and `CONVOY_DEMO_OTP`; keep them out of source control. Open the Render service URL. The browser first prompts for the preview username/password; after that, use the separately configured demo OTP and admin mobile.
 
+If a host reports `Could not import module "main"`, use the project root as its service root. `main.py` exposes the ASGI app for hosts that expect `main:app`; the recommended start command is `python server.py --host 0.0.0.0` (the server reads the platform's `PORT`).
+
 Render's free web service can sleep while idle and have a cold start; Atlas M0 also has free-tier limits. Availability, quotas, and provider terms may change. The `/api/health` check is public to Render for service monitoring. This setup is for a password-protected demo only, not public production or real payments.
 
 ## Fees and important limitations
