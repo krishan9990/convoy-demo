@@ -148,10 +148,10 @@ async function checkDatabase() {
   try {
     await api("/api/health");
     status.classList.add("connected");
-    status.lastElementChild.textContent = " Local MongoDB connected · demo mode";
+    $("#databaseStatusMessage").textContent = "MongoDB connected · demo mode";
   } catch (error) {
     status.classList.remove("connected");
-    status.lastElementChild.textContent = ` ${error.message}`;
+    $("#databaseStatusMessage").textContent = error.message;
   }
 }
 

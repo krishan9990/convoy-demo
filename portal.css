@@ -66,10 +66,11 @@ button { cursor: pointer; }
 .message.error:not(:empty) { background: #fcf0eb; }
 .demo-disclaimer { display: flex; gap: 7px; margin-top: 16px; padding: 10px; border-radius: 7px; background: #f7f3e8; color: #867451; font-size: 8px; line-height: 1.5; }
 .demo-disclaimer b { color: #6e5c32; }
-.database-status { display: flex; max-width: 420px; align-items: flex-start; gap: 7px; margin: 13px 0 0; color: #a65045; font-size: 8px; line-height: 1.5; }
-.database-status > span { width: 7px; height: 7px; flex: none; margin-top: 2px; border-radius: 50%; background: #cf7560; }
+.database-status { display: flex; width: 100%; max-width: 420px; align-items: flex-start; gap: 7px; margin: 13px 0 0; color: #a65045; font-size: 8px; line-height: 1.5; }
+.database-status > span:first-child { width: 7px; height: 7px; flex: none; margin-top: 2px; border-radius: 50%; background: #cf7560; }
+.database-status > span:last-child { flex: 1; min-width: 0; }
 .database-status.connected { color: #63806a; }
-.database-status.connected > span { background: #6baa74; }
+.database-status.connected > span:first-child { background: #6baa74; }
 
 .workspace { min-height: 100vh; }
 .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 3; display: flex; width: 225px; flex-direction: column; padding: 25px 18px 17px; background: var(--forest); color: #fff; }

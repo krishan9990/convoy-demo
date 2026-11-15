@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#172d29" />
     <meta name="description" content="Bring compatible local car buyers together and compare itemized dealer offers." />
     <title>Convoy | Group car buying</title>
-    <link rel="stylesheet" href="/portal.css" />
-    <script src="/portal.js" defer></script>
+    <link rel="stylesheet" href="/portal.css?v=3" />
+    <script src="/portal.js?v=2" defer></script>
   </head>
   <body>
     <main id="loginScreen" class="login-layout">
@@ -49,7 +49,7 @@
           <p id="loginMessage" class="message" role="status" aria-live="polite"></p>
           <div class="demo-disclaimer"><span aria-hidden="true">ⓘ</span><span>Demo sign-in values are configured by the server administrator. No SMS or money is sent. Customer, dealer, and admin profiles remain separate; dealer access still needs admin approval.</span></div>
         </div>
-        <p id="databaseStatus" class="database-status"><span></span> Checking MongoDB connection…</p>
+        <p id="databaseStatus" class="database-status"><span aria-hidden="true"></span><span id="databaseStatusMessage">Checking MongoDB connection…</span></p>
       </section>
     </main>
 

@@ -249,8 +249,8 @@ def get_database():
         raise HTTPException(
             status_code=503,
             detail=(
-                "MongoDB is unavailable. Start the local MongoDB service and "
-                "check MONGO_URI before signing in."
+                "MongoDB is unavailable. Check that the database service is running "
+                "and MONGO_URI is configured correctly."
             ),
         ) from exc
 
