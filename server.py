@@ -5,6 +5,7 @@ import base64
 import binascii
 import hashlib
 import hmac
+import logging
 import os
 import re
 import secrets
@@ -85,6 +86,7 @@ CATALOG = {
 VEHICLES = {model: make for make, models in CATALOG.items() for model in models}
 client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1500, tz_aware=True)
 _indexes_ready = False
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Convoy group-buying demo", docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -246,6 +248,11 @@ def get_database():
             _indexes_ready = True
         return database
     except PyMongoError as exc:
+        logger.error(
+            "MongoDB operation failed (%s, code=%s)",
+            type(exc).__name__,
+            getattr(exc, "code", None),
+        )
         raise HTTPException(
             status_code=503,
             detail=(
