@@ -19,8 +19,11 @@ $env:MONGO_URI = "mongodb://127.0.0.1:27017"
 $env:MONGO_DB = "convoy"
 $env:CONVOY_ADMIN_PHONE = "<your-admin-mobile>"
 $env:CONVOY_DEMO_OTP = "<your-six-digit-demo-otp>"
+$env:CONVOY_PII_ENCRYPTION_KEY = "<generated-fernet-key>"
 python .\bulk-buy\server.py
 ```
+
+Generate a Fernet key with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`. Keep it in the server environment, back it up securely, and do not change it after customer identity details have been saved.
 
 Open http://127.0.0.1:8791. The server binds to localhost by default.
 
@@ -41,6 +44,8 @@ Open http://127.0.0.1:8791. The server binds to localhost by default.
 
 MongoDB stores app data in the separate `convoy` database. Set `MONGO_URI` and `MONGO_DB` in the server process environment to use a separately managed instance. Never put database credentials, payment keys, or OTP secrets in source code or chat.
 
+Customer Aadhaar and PAN numbers are encrypted with `CONVOY_PII_ENCRYPTION_KEY` before being stored. The app returns only masked endings to the signed-in customer; dealers and admins are not given these details. The profile form performs format checks only, not government identity verification, and does not upload document images. Set a stable Fernet key in the deployment's secret variables before allowing profile details to be saved. Do not use real identity data in this demo unless the service has the required privacy, security, and legal controls.
+
 ## Free protected demo deployment (Render + MongoDB Atlas)
 
 The `render.yaml` in this project directory deploys Convoy directly; it does not use the unrelated root Dockerfile or Sawarri Compose stack. To deploy:
@@ -48,7 +53,7 @@ The `render.yaml` in this project directory deploys Convoy directly; it does not
 1. Create a MongoDB Atlas M0 cluster and a dedicated database user for the demo. Create a GitHub repository from this project directory, then connect it to Render and deploy the Blueprint from its `render.yaml`.
 2. In Render's service environment settings, set `MONGO_URI` to the Atlas connection string and `CONVOY_ACCESS_PASSWORD` to a unique, strong preview password. Keep both values in the provider's secret settings, never in source control or chat. The access username is `preview` by default and can be changed with `CONVOY_ACCESS_USERNAME`.
 3. Configure Atlas network access for the Render service. Render Free does not provide a fixed outbound IP; if an allow-list rule must be opened for this demo, use a dedicated least-privilege demo DB user, unique credentials, and no real customer data. Prefer a host with restricted/static egress for anything sensitive.
-4. In Render's service environment, also set `CONVOY_ADMIN_PHONE` and `CONVOY_DEMO_OTP`; keep them out of source control. Open the Render service URL. The browser first prompts for the preview username/password; after that, use the separately configured demo OTP and admin mobile.
+4. In Render's service environment, also set `CONVOY_ADMIN_PHONE`, `CONVOY_DEMO_OTP`, and a securely generated, stable `CONVOY_PII_ENCRYPTION_KEY`; keep them out of source control. Generate the key with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` and store it as a secret variable. Open the Render service URL. The browser first prompts for the preview username/password; after that, use the separately configured demo OTP and admin mobile.
 
 If a host reports `Could not import module "main"`, use the project root as its service root. `main.py` exposes the ASGI app for hosts that expect `main:app`; the recommended start command is `python server.py --host 0.0.0.0` (the server reads the platform's `PORT`).
 

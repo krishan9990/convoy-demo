@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Literal
 from uuid import uuid4
 
+from cryptography.fernet import Fernet
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse, JSONResponse
@@ -101,6 +102,12 @@ class OtpVerification(BaseModel):
     dealer_name: str = Field(default="", max_length=60)
     city: str = Field(default="", max_length=30)
     make: str = Field(default="", max_length=40)
+
+
+class CustomerProfileUpdate(BaseModel):
+    name: str = Field(min_length=2, max_length=80)
+    aadhaar: str = Field(default="", max_length=12)
+    pan: str = Field(default="", max_length=10)
 
 
 class GroupCreate(BaseModel):
@@ -294,6 +301,38 @@ def user_view(user: dict) -> dict:
             for key in DEALER_PERMISSION_KEYS
         } if user["role"] == "DEALER" else {},
     }
+
+
+def customer_profile_view(user: dict) -> dict:
+    has_aadhaar = bool(user.get("aadhaarCiphertext"))
+    has_pan = bool(user.get("panCiphertext"))
+    name = user.get("name", "")
+    completed = sum((bool(name), has_aadhaar, has_pan))
+    return {
+        "name": name,
+        "aadhaarAdded": has_aadhaar,
+        "aadhaarMasked": f"XXXX-XXXX-{user.get('aadhaarLast4', '')}" if has_aadhaar else "",
+        "panAdded": has_pan,
+        "panMasked": f"XXXXXX{user.get('panLast4', '')}" if has_pan else "",
+        "completionPercent": round(completed / 3 * 100),
+        "complete": completed == 3,
+    }
+
+
+def pii_fernet() -> Fernet:
+    key = os.getenv("CONVOY_PII_ENCRYPTION_KEY", "")
+    if not key:
+        raise HTTPException(
+            status_code=503,
+            detail="Sensitive profile storage is not configured. Set CONVOY_PII_ENCRYPTION_KEY before saving Aadhaar or PAN.",
+        )
+    try:
+        return Fernet(key.encode("ascii"))
+    except (ValueError, binascii.Error, UnicodeEncodeError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="CONVOY_PII_ENCRYPTION_KEY is invalid. Generate a Fernet key and keep it stable in the server environment.",
+        ) from exc
 
 
 def require_user(request: Request) -> dict:
@@ -646,6 +685,43 @@ def verify_otp(payload: OtpVerification, response: Response):
 @app.get("/api/auth/me")
 def who_am_i(user: dict = Depends(require_user)):
     return {"user": user_view(user), "demoOnly": True}
+
+
+@app.get("/api/auth/profile")
+def get_customer_profile(user: dict = Depends(require_role("CUSTOMER"))):
+    return customer_profile_view(user)
+
+
+@app.put("/api/auth/profile")
+def update_customer_profile(
+    payload: CustomerProfileUpdate,
+    user: dict = Depends(require_role("CUSTOMER")),
+):
+    name = payload.name.strip()
+    if len(name) < 2:
+        raise HTTPException(status_code=422, detail="Enter your full name.")
+
+    updates = {"name": name, "updatedAt": utc_now()}
+    aadhaar = re.sub(r"[\s-]", "", payload.aadhaar)
+    pan = payload.pan.strip().upper()
+    if aadhaar and not re.fullmatch(r"\d{12}", aadhaar):
+        raise HTTPException(status_code=422, detail="Enter a 12-digit Aadhaar number.")
+    if pan and not re.fullmatch(r"[A-Z]{5}\d{4}[A-Z]", pan):
+        raise HTTPException(status_code=422, detail="Enter a valid 10-character PAN number.")
+
+    if aadhaar or pan:
+        cipher = pii_fernet()
+        if aadhaar:
+            updates["aadhaarCiphertext"] = cipher.encrypt(aadhaar.encode("ascii")).decode("ascii")
+            updates["aadhaarLast4"] = aadhaar[-4:]
+        if pan:
+            updates["panCiphertext"] = cipher.encrypt(pan.encode("ascii")).decode("ascii")
+            updates["panLast4"] = pan[-4:]
+
+    database = get_database()
+    database["users"].update_one({"_id": user["_id"]}, {"$set": updates})
+    saved_user = database["users"].find_one({"_id": user["_id"]})
+    return customer_profile_view(saved_user)
 
 
 @app.post("/api/auth/logout")

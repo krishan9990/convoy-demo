@@ -3,6 +3,7 @@
 const state = {
   role: "CUSTOMER",
   user: null,
+  customerProfile: null,
   catalog: [],
   groups: [],
   ownGroups: [],
@@ -514,6 +515,65 @@ function renderIssueList(container, issues) {
   }));
 }
 
+function renderCustomerProfile(profile) {
+  const form = $("#customerProfileForm");
+  if (!form.dataset.edited) {
+    $("#profileFullName").value = profile.name || "";
+  }
+  if (!$("#customerFirstName").value && profile.name) {
+    $("#customerFirstName").value = profile.name.trim().split(/\s+/)[0];
+  }
+  $("#profileCompletionLabel").textContent = `${profile.completionPercent}% complete`;
+  $(".profile-progress").setAttribute("aria-valuenow", String(profile.completionPercent));
+  $("#profileProgressBar").style.width = `${profile.completionPercent}%`;
+  $("#aadhaarProfileHint").textContent = profile.aadhaarAdded
+    ? `On file: ${profile.aadhaarMasked}. Leave blank to keep it.`
+    : "Aadhaar is not on file.";
+  $("#panProfileHint").textContent = profile.panAdded
+    ? `On file: ${profile.panMasked}. Leave blank to keep it.`
+    : "PAN is not on file.";
+  $("#profileAadhaar").required = !profile.aadhaarAdded;
+  $("#profilePan").required = !profile.panAdded;
+  $("#profileAadhaar").placeholder = profile.aadhaarAdded ? "Saved — enter to replace" : "12 digits";
+  $("#profilePan").placeholder = profile.panAdded ? "Saved — enter to replace" : "e.g. ABCDE1234F";
+  state.customerProfile = profile;
+}
+
+async function handleCustomerProfile(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  const message = $("#customerProfileMessage");
+  message.textContent = "";
+  message.classList.remove("error");
+  setBusy(button, true, "Saving profile…");
+  try {
+    const profile = await api("/api/auth/profile", {
+      method: "PUT",
+      body: JSON.stringify({
+        name: $("#profileFullName").value.trim(),
+        aadhaar: $("#profileAadhaar").value.trim(),
+        pan: $("#profilePan").value.trim().toUpperCase(),
+      }),
+    });
+    $("#profileAadhaar").value = "";
+    $("#profilePan").value = "";
+    form.dataset.edited = "";
+    renderCustomerProfile(profile);
+    state.user.name = profile.name;
+    $("#welcomeTitle").textContent = `Welcome, ${profile.name}`;
+    $("#userAvatar").textContent = profile.name.trim().charAt(0).toUpperCase();
+    message.textContent = profile.complete
+      ? "Your profile is complete. These details are not identity-verified."
+      : "Profile saved. Add the remaining details to complete it.";
+  } catch (error) {
+    message.textContent = error.message;
+    message.classList.add("error");
+  } finally {
+    setBusy(button, false);
+  }
+}
+
 async function handleIssueForm(event, prefix) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -540,13 +600,15 @@ async function handleIssueForm(event, prefix) {
 async function loadCustomerData() {
   const city = $("#groupCityFilter").value;
   const query = city ? `?city=${encodeURIComponent(city)}` : "";
-  const [groups, ownGroups, issues] = await Promise.all([
+  const [groups, ownGroups, issues, profile] = await Promise.all([
     api(`/api/groups${query}`),
     api("/api/orders"),
     api("/api/issues"),
+    api("/api/auth/profile"),
   ]);
   state.groups = groups;
   state.ownGroups = ownGroups;
+  renderCustomerProfile(profile);
   updateIssueGroupOptions($("#customerIssueGroup"), ownGroups);
   renderIssueList($("#customerIssues"), issues);
   $("#customerIssuesEmpty").classList.toggle("hidden", issues.length > 0);
@@ -1370,6 +1432,13 @@ function wireEvents() {
   $("#refreshCustomerButton").addEventListener("click", () => loadCustomerData().catch((error) => window.alert(error.message)));
   $("#groupForm").addEventListener("submit", handleCreateGroup);
   $("#customerIssueForm").addEventListener("submit", (event) => handleIssueForm(event, "customer"));
+  $("#customerProfileForm").addEventListener("submit", handleCustomerProfile);
+  $("#customerProfileForm").addEventListener("input", (event) => {
+    if (event.target.id === "profileFullName") event.currentTarget.dataset.edited = "true";
+  });
+  $("#profilePan").addEventListener("input", (event) => {
+    event.target.value = event.target.value.toUpperCase();
+  });
   $("#refreshDealerButton").addEventListener("click", () => loadDealerData().catch((error) => window.alert(error.message)));
   $("#dealerLeadSearch").addEventListener("input", renderDealerGroups);
   $("#dealerLeadQuoteFilter").addEventListener("change", renderDealerGroups);

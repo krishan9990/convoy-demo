@@ -89,6 +89,27 @@
             <article class="stat-card accent-stat"><span class="stat-label">DEMO ENTRY FEE</span><div><b>₹500</b><span class="stat-icon lime">✓</span></div><small>Per active membership</small></article>
           </section>
 
+          <section class="panel profile-panel" aria-labelledby="customerProfileTitle">
+            <div class="panel-heading">
+              <div><p class="eyebrow">CUSTOMER DETAILS</p><h2 id="customerProfileTitle">Complete your profile</h2></div>
+              <span id="profileCompletionLabel" class="count-pill">0% complete</span>
+            </div>
+            <div class="profile-progress" role="progressbar" aria-label="Profile completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="profileProgressBar"></span></div>
+            <p class="panel-description">Add your name, Aadhaar, and PAN details. Aadhaar and PAN are encrypted in storage and only their masked endings are shown after saving.</p>
+            <form id="customerProfileForm" class="form-stack profile-form">
+              <label>Full name<input id="profileFullName" maxlength="80" autocomplete="name" required placeholder="As shown on your identity documents" /></label>
+              <div class="form-row">
+                <label>Aadhaar number<input id="profileAadhaar" type="password" inputmode="numeric" autocomplete="off" maxlength="12" pattern="[0-9]{12}" placeholder="12 digits" /></label>
+                <label>PAN number<input id="profilePan" type="password" autocomplete="off" maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]" placeholder="e.g. ABCDE1234F" /></label>
+              </div>
+              <p id="aadhaarProfileHint" class="profile-field-hint"></p>
+              <p id="panProfileHint" class="profile-field-hint"></p>
+              <p class="profile-privacy-note">Demo only: details are not verified and no document images are uploaded. Use test data; don’t submit real identity numbers unless this service is approved for handling them.</p>
+              <button class="submit-button" type="submit">Save profile details <span>→</span></button>
+              <p id="customerProfileMessage" class="profile-feedback" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
           <section class="customer-grid">
             <div class="main-column">
               <section id="buying-groups" class="panel">
